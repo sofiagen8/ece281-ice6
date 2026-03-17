@@ -11,7 +11,7 @@
 --| ---------------------------------------------------------------------------
 --|
 --| FILENAME      : TDM4_tb.vhd (TEST BENCH)
---| AUTHOR(S)     : Capt Phillip Warner, Capt Dan Johnson, **Your Name**
+--| AUTHOR(S)     : Capt Phillip Warner, Capt Dan Johnson, C1C Sofia Gentile
 --| CREATED       : 03/2017 Last modified on 06/24/2020
 --| DESCRIPTION   : This file tests the 4 to 1 TDM.
 --|
@@ -54,29 +54,46 @@ architecture test_bench of TDM4_tb is
   
 	component TDM4 is
 		-- fill in from TDM4.vhd
+		generic ( constant k_width : natural := 4);
+		Port (i_clk :in std_logic;
+		      i_reset : in std_logic;
+		      i_D3 : in std_logic_vector(k_width - 1 downto 0);
+		      i_D2 : in std_logic_vector(k_width - 1 downto 0);
+		      i_D1 : in std_logic_vector(k_width - 1 downto 0);
+		      i_D0 : in std_logic_vector(k_width - 1 downto 0);
+		      o_data : out std_logic_vector(k_width - 1 downto 0);
+		      o_sel_n : out std_logic_vector(3 downto 0) --one-cold
+		      );
 
 	end component TDM4;
 
 	-- Setup test clk (20 ns --> 50 MHz) and other signals
-	
+	constant k_clk_period : time := 20 ns;
 	-- Constants
 	constant k_IO_WIDTH : natural := 4;
 	-- Signals
-	
+	signal w_clk : std_logic := '0';
+    signal w_reset : std_logic := '0';
+	signal w_D3 : std_logic_vector(k_IO_WIDTH - 1 downto 0) := "0000";
+	signal w_D2 : std_logic_vector(k_IO_WIDTH - 1 downto 0):= "0000";
+	signal w_D1 : std_logic_vector(k_IO_WIDTH - 1 downto 0) := "0000";
+	signal w_D0 : std_logic_vector(k_IO_WIDTH - 1 downto 0) := "0000";
+	signal f_data : std_logic_vector(k_IO_WIDTH - 1 downto 0) := "0000";
+	signal f_sel_n : std_logic_vector(3 downto 0):= "0000"; --one-cold
 begin
 	-- PORT MAPS ----------------------------------------
 	-- map ports for any component instances (port mapping is like wiring hardware)
 	uut_inst : TDM4 
-	generic map ( k_WIDTH =>  )
+	generic map ( k_WIDTH => k_IO_WIDTH )
 	port map ( 
-       i_clk   => 
-       i_reset => 
-       i_D3    => 
-       i_D2    => 
-       i_D1    => 
-       i_D0    => 
-       o_data  => 
-       o_sel   => 
+       i_clk   => w_clk,
+       i_reset =>  w_reset,
+       i_D3    => w_D3,
+       i_D2    => w_D2,
+       i_D1    => w_D1,
+       i_D0    => w_D0,
+       o_data  => f_data,
+       o_sel_n   => f_sel_n
 	);
 	-----------------------------------------------------	
 	
@@ -84,9 +101,10 @@ begin
 	-- Clock Process ------------------------------------
 	clk_process : process
 	begin
-
-
-
+    w_clk <= '0';
+    wait for k_clk_period/2;
+    w_clk <= '1';
+    wait for k_clk_period/2;
 	end process clk_process;
 	-----------------------------------------------------	
 	
@@ -94,7 +112,10 @@ begin
 	test_process : process 
 	begin
 		-- assign test values to data inputs
-
+        w_D3 <= "1100";
+        w_D2 <= "1001";
+        w_D1 <= "0110";
+        w_D0 <= "0011";
 				
 		-- reset the system first
 		w_reset <= '1';
